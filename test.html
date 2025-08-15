@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HAYUx CBT Practice Quiz</title>
+  <style>
+    /* Modern Light Blue Theme */
+    :root {
+      --primary: #4fc3f7;
+      --primary-dark: #0288d1;
+      --primary-light: #e1f5fe;
+      --primary-transparent: rgba(79, 195, 247, 0.2);
+      --accent: #ffb74d;
+      --neutral-100: #f8fdff;
+      --neutral-200: #e3f2fd;
+      --neutral-700: #546e7a;
+      --neutral-900: #263238;
+      --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      --transition: all 0.3s ease;
+      --border-radius: 8px;
+    }
+
+    /* Base Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, var(--neutral-100) 0%, var(--primary-light) 100%);
+      color: var(--neutral-900);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* Marquee Banner - Fixed Position */
+    .marquee-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: var(--primary-dark);
+      color: white;
+      font-weight: 600;
+      padding: 0.5rem;
+      font-size: 0.9rem;
+      z-index: 1000;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    /* Navigation Bar */
+    nav {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(5px);
+      color: var(--neutral-900);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+      position: sticky;
+      top: 40px;
+      z-index: 1001;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      border-bottom: 1px solid var(--neutral-200);
+    }
+
+    .logo {
+      font-size: 1.4em;
+      font-weight: bold;
+      color: var(--primary-dark);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .nav-links a {
+      color: var(--neutral-700);
+      text-decoration: none;
+      font-weight: 600;
+      transition: var(--transition);
+      padding: 8px 12px;
+      border-radius: var(--border-radius);
+    }
+
+    .nav-links a:hover {
+      background: var(--primary-transparent);
+      color: var(--primary-dark);
+    }
+
+    /* Quiz specific styles */
+    .quiz-header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      text-align: center;
+      padding: 1.2rem 0;
+      position: relative;
+      box-shadow: 0 3px 8px rgba(37, 99, 235, 0.3);
+      margin-top: 40px;
+    }
+
+    .quiz-header h1 {
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .subheader {
+      font-size: 1.3rem;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    /* Dark mode toggle */
+    #dark-mode-toggle {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      font-weight: 700;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #dark-mode-toggle:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    /* App container */
+    #app {
+      display: flex;
+      max-width: 1200px;
+      margin: 25px auto;
+      min-height: 75vh;
+      box-shadow: var(--card-shadow);
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(2px);
+      border: 1px solid var(--neutral-200);
+    }
+
+    /* Sidebar */
+    #sidebar {
+      width: 220px;
+      background: var(--primary-light);
+      padding: 20px 15px;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--neutral-200);
+    }
+
+    #sidebar h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 18px;
+      text-align: center;
+      color: var(--primary-dark);
+    }
+
+    /* Question nav buttons (sidebar) */
+    #question-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      overflow-y: auto;
+      max-height: calc(75vh - 80px);
+    }
+
+    #question-nav button {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid var(--neutral-200);
+      background: white;
+      color: var(--neutral-700);
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    #question-nav button:hover {
+      background: var(--primary-light);
+    }
+
+    #question-nav button.answered {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 3px 10px rgba(79, 195, 247, 0.3);
+    }
+
+    #question-nav button.current {
+      transform: scale(1.1);
+      border: 2px solid var(--accent);
+      box-shadow: 0 0 0 3px var(--primary-transparent);
+    }
+
+    /* Main content */
+    #main-content {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 30px 40px;
+      position: relative;
+    }
+
+    /* Timer */
+    #timer {
+      align-self: flex-end;
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: var(--primary-dark);
+      font-variant-numeric: tabular-nums;
+      margin-bottom: 20px;
+      padding: 8px 15px;
+      background: var(--primary-light);
+      border-radius: 50px;
+    }
+
+    /* Quiz container */
+    #quiz-container {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Question number and text */
+    #question-number {
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+      color: var(--primary-dark);
+    }
+
+    #question-text {
+      font-size: 1.2rem;
+      margin-bottom: 25px;
+      line-height: 1.5;
+      padding: 15px;
+      background: var(--neutral-100);
+      border-radius: var(--border-radius);
+      box-shadow: var(--card-shadow);
+      border: 1px solid var(--neutral-200);
+    }
+
+    /* Options container */
+    #options-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 25px;
+    }
+
+    /* Individual option */
+    .option {
+      background: var(--neutral-100);
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--border-radius);
+      padding: 15px 20px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: var(--transition);
+      box-shadow: var(--card-shadow);
+    }
+
+    .option:hover,
+    .option:focus {
+      border-color: var(--primary);
+      background-color: var(--primary-light);
+      transform: translateY(-2px);
+    }
+
+    .option.selected {
+      background-color: var(--primary);
+      color: white;
+      border-color: var(--primary-dark);
+      box-shadow: 0 5px 15px rgba(79, 195, 247, 0.4);
+    }
+
+    /* Navigation buttons */
+    #navigation {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      margin-top: auto;
+    }
+
+    #navigation button {
+      padding: 12px 24px;
+      font-weight: 700;
+      font-size: 1rem;
+      border-radius: 50px;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+      background-color: var(--primary);
+      color: white;
+      box-shadow: var(--card-shadow);
+    }
+
+    #navigation button:hover:not(:disabled) {
+      background-color: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+
+    #navigation button:disabled {
+      background-color: var(--neutral-700);
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    /* Submit button */
+    #submit-btn {
+      min-width: 120px;
+      background: var(--accent) !important;
+    }
+
+    #submit-btn:hover:not(:disabled) {
+      background: #ff9800 !important;
+    }
+
+    /* Result container */
+    #result-container {
+      flex-grow: 1;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      background: var(--neutral-100);
+      border-radius: var(--border-radius);
+      box-shadow: var(--card-shadow);
+      border: 1px solid var(--neutral-200);
+    }
+
+    #result-container h2 {
+      color: var(--primary-dark);
+      text-align: center;
+      margin-bottom: 15px;
+      font-size: 1.8rem;
+    }
+
+    #score {
+      font-size: 1.5rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 20px;
+      padding: 15px;
+      background: rgba(76, 175, 80, 0.15);
+      border-radius: var(--border-radius);
+    }
+
+    .result-question {
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--border-radius);
+      padding: 15px;
+      background: white;
+      margin-bottom: 10px;
+    }
+
+    .correct {
+      color: #2e7d32;
+      font-weight: 700;
+    }
+
+    .wrong {
+      color: #c62828;
+      font-weight: 700;
+    }
+
+    /* Retry button */
+    #retry-btn {
+      align-self: center;
+      padding: 12px 30px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      border-radius: 50px;
+      border: none;
+      cursor: pointer;
+      background-color: var(--primary);
+      color: white;
+      margin-top: 20px;
+      transition: var(--transition);
+    }
+
+    #retry-btn:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+
+    /* Start screen */
+    #start-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 75vh;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 40px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: var(--border-radius);
+      box-shadow: var(--card-shadow);
+      border: 1px solid var(--neutral-200);
+      text-align: center;
+    }
+
+    #start-screen h1 {
+      font-size: 2.2rem;
+      margin-bottom: 20px;
+      color: var(--primary-dark);
+    }
+
+    #start-screen p {
+      font-size: 1.1rem;
+      color: var(--neutral-700);
+      max-width: 600px;
+      margin-bottom: 30px;
+      line-height: 1.6;
+    }
+
+    #start-quiz-btn {
+      padding: 15px 40px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: white;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: var(--card-shadow);
+    }
+
+    #start-quiz-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(79, 195, 247, 0.4);
+    }
+
+    /* Custom confirmation dialog */
+    #customConfirm {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      font-size: 1.3rem;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      flex-direction: column;
+      backdrop-filter: blur(3px);
+    }
+
+    #customConfirm p {
+      margin-bottom: 30px;
+      text-align: center;
+      max-width: 500px;
+      line-height: 1.6;
+    }
+
+    #customConfirm div {
+      display: flex;
+      gap: 15px;
+    }
+
+    #customConfirm button {
+      padding: 12px 30px;
+      font-size: 1.1rem;
+      border-radius: 50px;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    #confirmYes {
+      background: var(--primary);
+      color: white;
+    }
+
+    #confirmYes:hover {
+      background: var(--primary-dark);
+    }
+
+    #confirmNo {
+      background: #f44336;
+      color: white;
+    }
+
+    #confirmNo:hover {
+      background: #d32f2f;
+    }
+
+    /* Responsive tweaks */
+    @media (max-width: 768px) {
+      #sidebar {
+        display: none;
+      }
+      
+      .quiz-header h1 {
+        font-size: 1.5rem;
+      }
+      
+      .subheader {
+        font-size: 1.1rem;
+      }
+      
+      #main-content {
+        padding: 20px;
+      }
+      
+      #question-text {
+        font-size: 1.1rem;
+      }
+      
+      #navigation {
+        flex-direction: column;
+      }
+      
+      #navigation button {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .quiz-header h1 {
+        font-size: 1.3rem;
+      }
+      
+      .subheader {
+        font-size: 1rem;
+      }
+      
+      #timer {
+        font-size: 1rem;
+      }
+      
+      #question-text {
+        padding: 10px;
+        font-size: 1rem;
+      }
+      
+      .option {
+        padding: 12px 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Marquee Banner -->
+  <div class="marquee-container">
+    <marquee behavior="scroll" direction="left">Welcome to HAYUx CBT Platform - Empowering your learning journey!</marquee>
+  </div>
+
+  <!-- Navigation Bar -->
+  <nav>
+    <div class="logo">HAYUx CBT</div>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="create.html">Create Quiz</a>
+      <a href="#">Download PDFs</a>
+      <a href="contact.html">Contact</a>
+    </div>
+  </nav>
+
+  <!-- Quiz Header -->
+  <div class="quiz-header">
+    <h1>HAYUx CBT Practice Quiz</h1>
+    <div class="subheader">GNS 222: Introduction to Philosophy</div>
+    <button id="dark-mode-toggle" aria-label="Toggle Dark Mode" title="Toggle Dark Mode">
+      🌙 Dark Mode
+    </button>
+  </div>
+
+  <div id="app" style="display: none;">
+    <aside id="sidebar">
+      <h2>Questions</h2>
+      <div id="question-nav"></div>
+    </aside>
+
+    <main id="main-content">
+      <div id="timer">Time Left: 45:00</div>
+
+      <div id="quiz-container">
+        <div id="question-number"></div>
+        <div id="question-text"></div>
+        <div id="options-container"></div>
+
+        <div id="navigation">
+          <button id="prev-btn">Previous</button>
+          <button id="submit-btn" disabled>Submit Quiz</button>
+          <button id="next-btn">Next</button>
+        </div>
+      </div>
+
+      <div id="result-container" style="display:none;">
+        <h2>Quiz Results</h2>
+        <div id="score"></div>
+        <div id="results-list"></div>
+        <button id="retry-btn">Try Again</button>
+      </div>
+    </main>
+  </div>
+
+  <!-- Start screen - shown initially -->
+  <div id="start-screen">
+    <h1>Welcome to HAYUx CBT Practice Quiz</h1>
+    <p>Test your knowledge with this interactive quiz. You'll have 45 minutes to answer 50 questions. Good luck!</p>
+    <button id="start-quiz-btn">Start Quiz Now</button>
+  </div>
+
+  <!-- Custom confirmation dialog -->
+  <div id="customConfirm">
+    <p>Are you sure you want to submit the quiz? You still have time remaining.</p>
+    <div>
+      <button id="confirmYes">Yes, Submit</button>
+      <button id="confirmNo">No, Continue</button>
+    </div>
+  </div>
+
+  <script>
+    // Sample questions for demonstration
+    const questions = [
+      {
+        question: "Which philosopher is known for the phrase 'Cogito, ergo sum'?",
+        options: ["Aristotle", "Plato", "Descartes", "Kant"],
+        answer: 2
+      },
+      {
+        question: "What is the main focus of epistemology?",
+        options: ["The nature of reality", "The study of knowledge", "Moral values", "Aesthetic principles"],
+        answer: 1
+      },
+      {
+        question: "Which of these is NOT a branch of philosophy?",
+        options: ["Metaphysics", "Epistemology", "Ethics", "Astrology"],
+        answer: 3
+      },
+      {
+        question: "Who wrote 'The Republic'?",
+        options: ["Socrates", "Plato", "Aristotle", "Nietzsche"],
+        answer: 1
+      },
+      {
+        question: "What does utilitarianism emphasize?",
+        options: ["Maximizing happiness", "Following duty", "Personal virtue", "Divine command"],
+        answer: 0
+      }
+    ];
+    
+    // UI Elements
+    const questionNav = document.getElementById('question-nav');
+    const questionNavMobile = document.getElementById('question-nav-mobile');
+    const startScreen = document.getElementById('start-screen');
+    const startQuizBtn = document.getElementById('start-quiz-btn');
+    const quizContainer = document.getElementById('quiz-container');
+    const resultContainer = document.getElementById('result-container');
+    const app = document.getElementById('app');
+    const timerEl = document.getElementById('timer');
+    const questionNumberEl = document.getElementById('question-number');
+    const questionTextEl = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const submitBtn = document.getElementById('submit-btn');
+    const scoreEl = document.getElementById('score');
+    const resultsList = document.getElementById('results-list');
+    const retryBtn = document.getElementById('retry-btn');
+    const customConfirm = document.getElementById('customConfirm');
+    const confirmYes = document.getElementById('confirmYes');
+    const confirmNo = document.getElementById('confirmNo');
+    const darkModeToggle = document.getElementById('dark-mode-toggle');
+
+    // Quiz variables
+    const TOTAL_QUESTIONS = 5;
+    const TIME_LIMIT = 45 * 60; // in seconds
+    let selectedQuestions = [];
+    let currentQuestionIndex = 0;
+    let userAnswers = [];
+    let timer;
+    let timeRemaining = TIME_LIMIT;
+
+    // Initialize quiz
+    startQuizBtn.addEventListener('click', () => {
+      startScreen.style.display = 'none';
+      app.style.display = 'flex';
+      initQuiz();
+    });
+
+    function initQuiz() {
+      // Shuffle and pick questions
+      const shuffled = shuffleArray([...questions]);
+      selectedQuestions = shuffled.slice(0, Math.min(TOTAL_QUESTIONS, questions.length));
+
+      currentQuestionIndex = 0;
+      userAnswers = new Array(selectedQuestions.length).fill(null);
+
+      timeRemaining = TIME_LIMIT;
+      updateTimerDisplay();
+
+      showQuestion();
+
+      prevBtn.disabled = true;
+      nextBtn.disabled = false;
+      submitBtn.disabled = true;
+
+      quizContainer.style.display = 'flex';
+      resultContainer.style.display = 'none';
+
+      startTimer();
+    }
+
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function startTimer() {
+      clearInterval(timer);
+      timer = setInterval(() => {
+        timeRemaining--;
+        updateTimerDisplay();
+        if (timeRemaining <= 0) {
+          clearInterval(timer);
+          finishQuiz();
+        }
+      }, 1000);
+    }
+
+    function updateTimerDisplay() {
+      let min = Math.floor(timeRemaining / 60);
+      let sec = timeRemaining % 60;
+      timerEl.textContent = `Time Left: ${min.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
+    }
+
+    function renderQuestionNav() {
+      questionNav.innerHTML = '';
+      selectedQuestions.forEach((_, i) => {
+        const btn = document.createElement('button');
+        btn.textContent = i + 1;
+        if (userAnswers[i] !== null) btn.classList.add('answered');
+        if (i === currentQuestionIndex) btn.classList.add('current');
+        btn.addEventListener('click', () => {
+          currentQuestionIndex = i;
+          showQuestion();
+          renderQuestionNav();
+        });
+        questionNav.appendChild(btn);
+      });
+    }
+
+    function showQuestion() {
+      const q = selectedQuestions[currentQuestionIndex];
+      questionNumberEl.textContent = `Question ${currentQuestionIndex + 1} of ${selectedQuestions.length}`;
+      questionTextEl.textContent = q.question;
+
+      optionsContainer.innerHTML = '';
+
+      q.options.forEach((optionText, i) => {
+        const optionDiv = document.createElement('div');
+        optionDiv.className = 'option';
+        optionDiv.textContent = String.fromCharCode(65 + i) + ". " + optionText;
+
+        if(userAnswers[currentQuestionIndex] === i) {
+          optionDiv.classList.add('selected');
+        }
+
+        optionDiv.addEventListener('click', () => {
+          selectOption(i);
+        });
+
+        optionsContainer.appendChild(optionDiv);
+      });
+
+      prevBtn.disabled = currentQuestionIndex === 0;
+      nextBtn.disabled = currentQuestionIndex === selectedQuestions.length - 1;
+      submitBtn.disabled = userAnswers[currentQuestionIndex] === null;
+
+      renderQuestionNav();
+    }
+
+    function selectOption(optionIndex) {
+      userAnswers[currentQuestionIndex] = optionIndex;
+      
+      Array.from(optionsContainer.children).forEach((optEl, idx) => {
+        optEl.classList.toggle('selected', idx === optionIndex);
+      });
+
+      submitBtn.disabled = false;
+      renderQuestionNav();
+    }
+
+    // Navigation buttons
+    prevBtn.addEventListener('click', () => {
+      if(currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        showQuestion();
+      }
+    });
+
+    nextBtn.addEventListener('click', () => {
+      if(currentQuestionIndex < selectedQuestions.length - 1) {
+        currentQuestionIndex++;
+        showQuestion();
+      }
+    });
+
+    // Submit button shows custom confirmation dialog
+    submitBtn.addEventListener('click', () => {
+      customConfirm.style.display = 'flex';
+    });
+
+    // Confirm dialog buttons
+    confirmYes.addEventListener('click', () => {
+      customConfirm.style.display = 'none';
+      finishQuiz();
+    });
+
+    confirmNo.addEventListener('click', () => {
+      customConfirm.style.display = 'none';
+    });
+
+    function finishQuiz() {
+      clearInterval(timer);
+      quizContainer.style.display = 'none';
+      resultContainer.style.display = 'flex';
+
+      let correctCount = 0;
+      resultsList.innerHTML = '';
+
+      selectedQuestions.forEach((q, idx) => {
+        const userAnsIndex = userAnswers[idx];
+        const isCorrect = userAnsIndex === q.answer;
+        if (isCorrect) correctCount++;
+
+        const userAnswerText = userAnsIndex !== null ? q.options[userAnsIndex] : 'No Answer';
+        const correctAnswerText = q.options[q.answer];
+
+        const div = document.createElement('div');
+        div.className = 'result-question';
+        div.innerHTML = `
+          <div><strong>Q${idx + 1}:</strong> ${q.question}</div>
+          <div>Your answer: <span class="${isCorrect ? 'correct' : 'wrong'}">${userAnswerText}</span></div>
+          ${isCorrect ? '' : `<div>Correct answer: <span class="correct">${correctAnswerText}</span></div>`}
+        `;
+        resultsList.appendChild(div);
+      });
+
+      scoreEl.textContent = `You answered ${correctCount} out of ${selectedQuestions.length} questions correctly.`;
+      
+      // Add performance comment
+      let comment = "";
+      const percentage = Math.round((correctCount / selectedQuestions.length) * 100);
+      
+      if (percentage >= 80) comment = "Excellent work! You have a strong grasp of this material.";
+      else if (percentage >= 60) comment = "Good effort! Review the incorrect answers to improve.";
+      else comment = "Keep studying! Focus on the topics you missed.";
+      
+      scoreEl.innerHTML += `<div style="margin-top:10px;font-weight:normal">${comment}</div>`;
+    }
+
+    retryBtn.addEventListener('click', () => {
+      initQuiz();
+    });
+
+    // Dark Mode Toggle
+    darkModeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('dark-mode');
+      darkModeToggle.textContent = document.body.classList.contains('dark-mode') ? '☀️ Light Mode' : '🌙 Dark Mode';
+    });
+
+    // Initialize everything hidden
+    quizContainer.style.display = 'none';
+    resultContainer.style.display = 'none';
+    submitBtn.style.display = 'inline-block';
+  </script>
+</body>
+</html>
